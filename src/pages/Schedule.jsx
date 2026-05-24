@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { SectionHead, Card, Badge, Loading, fmtDate } from "../components/ui";
-import { IcChevron, IcBack } from "../components/Icons";
+import { IcChevron, IcBack, IcChevDown } from "../components/Icons";
 import { useCollection } from "../lib/useData";
+import TopBar from "../components/TopBar";
 
 const PHASE = {
   done: { label: "완료", tone: "gray" },
@@ -101,30 +102,69 @@ function Calendar({ events }) {
 }
 
 function Roadmap({ events }) {
+  const [showPast, setShowPast] = useState(false);
+
+  const { upcoming, past } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const up = [], pa = [];
+    for (const e of events) {
+      const d = new Date(e.date);
+      if (e.phase === "done" || (e.phase !== "active" && d < today)) pa.push(e);
+      else up.push(e);
+    }
+    up.sort((a, b) => new Date(a.date) - new Date(b.date)); // 가까운 순
+    pa.sort((a, b) => new Date(b.date) - new Date(a.date)); // 최신순
+    return { upcoming: up, past: pa };
+  }, [events]);
+
+  const Item = (e) => {
+    const p = PHASE[e.phase] || PHASE.upcoming;
+    const active = e.phase === "active";
+    return (
+      <div key={e.id} className="row fade" style={{ alignItems: "stretch", gap: 14, marginBottom: 12 }}>
+        <div style={{
+          width: 16, height: 16, borderRadius: "50%", marginTop: 4, flexShrink: 0, zIndex: 1,
+          background: e.phase === "done" ? "var(--muted)" : active ? "var(--red)" : "#fff",
+          border: `3px solid ${e.phase === "upcoming" ? "var(--line)" : active ? "var(--red)" : "var(--muted)"}`,
+          boxShadow: active ? "0 0 0 5px var(--soft)" : "none",
+        }} />
+        <Card className="grow" style={{ padding: "13px 15px", background: active ? "var(--soft)" : "var(--card)", border: active ? "1px solid #f1c9d3" : undefined }}>
+          <div className="row" style={{ marginBottom: 4 }}>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "var(--navy)" }}>{e.title}</span>
+            <span style={{ marginLeft: "auto" }}><Badge tone={p.tone}>{p.label}</Badge></span>
+          </div>
+          <div className="muted" style={{ fontSize: 13 }}>{fmtDate(e.date)}</div>
+        </Card>
+      </div>
+    );
+  };
+
   return (
     <div style={{ position: "relative", paddingLeft: 6 }}>
-      <div style={{ position: "absolute", left: 13, top: 8, bottom: 8, width: 2, background: "var(--line)" }} />
-      {events.map((e, i) => {
-        const p = PHASE[e.phase] || PHASE.upcoming;
-        const active = e.phase === "active";
-        return (
-          <div key={e.id} className="row fade" style={{ alignItems: "stretch", gap: 14, marginBottom: 16, animationDelay: `${i * 0.04}s` }}>
-            <div style={{
-              width: 16, height: 16, borderRadius: "50%", marginTop: 4, flexShrink: 0, zIndex: 1,
-              background: e.phase === "done" ? "var(--muted)" : active ? "var(--red)" : "#fff",
-              border: `3px solid ${e.phase === "upcoming" ? "var(--line)" : active ? "var(--red)" : "var(--muted)"}`,
-              boxShadow: active ? "0 0 0 5px var(--soft)" : "none",
-            }} />
-            <Card className="grow" style={{ padding: "13px 15px", background: active ? "var(--soft)" : "var(--card)", border: active ? "1px solid #f1c9d3" : undefined }}>
-              <div className="row" style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 15, fontWeight: 800, color: "var(--navy)" }}>{e.title}</span>
-                <span style={{ marginLeft: "auto" }}><Badge tone={p.tone}>{p.label}</Badge></span>
-              </div>
-              <div className="muted" style={{ fontSize: 13 }}>{fmtDate(e.date)}</div>
-            </Card>
-          </div>
-        );
-      })}
+      <div className="kicker" style={{ marginBottom: 12 }}>다가오는 일정</div>
+      {upcoming.length === 0 ? (
+        <div className="muted" style={{ fontSize: 13, padding: "4px 0 16px" }}>예정된 일정이 없습니다.</div>
+      ) : upcoming.map(Item)}
+
+      {past.length > 0 && (
+        <>
+          <button
+            onClick={() => setShowPast((v) => !v)}
+            className="btn btn-ghost"
+            style={{ marginTop: 6, padding: "11px 0", fontSize: 13.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+          >
+            <IcChevDown size={17} style={{ transform: showPast ? "rotate(180deg)" : "none", transition: ".2s" }} />
+            지난 일정 {past.length}개 {showPast ? "접기" : "보기"}
+          </button>
+          {showPast && (
+            <div style={{ marginTop: 14 }}>
+              <div className="kicker" style={{ marginBottom: 12, color: "var(--muted)" }}>지난 일정</div>
+              {past.map(Item)}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -135,8 +175,8 @@ export default function Schedule() {
 
   return (
     <div className="page">
+      <TopBar title="공천 일정" />
       <div style={{ padding: 18 }}>
-        <SectionHead kicker="Schedule" title="공천 일정" />
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           {[["calendar", "캘린더"], ["roadmap", "로드맵"]].map(([k, l]) => (
             <button key={k} onClick={() => setView(k)} className="btn"

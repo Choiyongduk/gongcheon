@@ -15,13 +15,12 @@ export function Archive() {
 
   return (
     <div className="page">
+      <TopBar title="회의 · 자료" right={
+        tab === "minutes"
+          ? <WriteButton table="minutes" label="작성" onSaved={rm} />
+          : <WriteButton table="documents" label="추가" onSaved={rd} />
+      } />
       <div style={{ padding: 18 }}>
-        <div className="row" style={{ alignItems: "flex-end", marginBottom: 16 }}>
-          <div className="grow"><SectionHead kicker="Archive" title="회의 · 자료" /></div>
-          {tab === "minutes"
-            ? <WriteButton table="minutes" label="회의록 작성" onSaved={rm} />
-            : <WriteButton table="documents" label="자료 추가" onSaved={rd} />}
-        </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           {[["minutes", "회의록"], ["docs", "자료실"]].map(([k, l]) => (
             <button

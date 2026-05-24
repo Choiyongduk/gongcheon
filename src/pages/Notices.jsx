@@ -14,11 +14,8 @@ export function Notices() {
   const { data, loading, reload } = useCollection("notices");
   return (
     <div className="page">
+      <TopBar title="공지사항" right={<WriteButton table="notices" label="작성" onSaved={reload} />} />
       <div style={{ padding: 18 }}>
-        <div className="row" style={{ alignItems: "flex-end", marginBottom: 16 }}>
-          <div className="grow"><SectionHead kicker="Notice" title="공지사항" /></div>
-          <WriteButton table="notices" label="공지 작성" onSaved={reload} />
-        </div>
         {loading ? (
           <Loading />
         ) : data.length === 0 ? (

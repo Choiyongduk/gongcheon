@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import TopBar from "../components/TopBar";
 import { SectionHead, Card } from "../components/ui";
 import { IcMembers, IcScale, IcBulb, IcChevron, IcLock, IcLogout, IcEdit } from "../components/Icons";
 import { useAuth } from "../context/AuthContext";
@@ -16,8 +17,8 @@ export default function Committee() {
 
   return (
     <div className="page">
+      <TopBar title="위원회" />
       <div style={{ padding: 18 }}>
-        <SectionHead kicker="Committee" title="위원회" />
         <div className="stack" style={{ gap: 11 }}>
           {ITEMS.map((it) => (
             <Card key={it.to} className="card-pad row tap" onClick={() => nav(it.to)}>
