@@ -3,17 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { Card, Badge, SectionHead, Empty, Loading, fmtDate } from "../components/ui";
 import { IcPin } from "../components/Icons";
+import { Attachments } from "../components/Media";
+import { WriteButton } from "../components/RecordEditor";
 import { useCollection } from "../lib/useData";
 
 const tone = (c) => (c === "성명" ? "red" : c === "공고" ? "gold" : "navy");
 
 export function Notices() {
   const nav = useNavigate();
-  const { data, loading } = useCollection("notices");
+  const { data, loading, reload } = useCollection("notices");
   return (
     <div className="page">
       <div style={{ padding: 18 }}>
-        <SectionHead kicker="Notice" title="공지사항" />
+        <div className="row" style={{ alignItems: "flex-end", marginBottom: 16 }}>
+          <div className="grow"><SectionHead kicker="Notice" title="공지사항" /></div>
+          <WriteButton table="notices" label="공지 작성" onSaved={reload} />
+        </div>
         {loading ? (
           <Loading />
         ) : data.length === 0 ? (
@@ -57,6 +62,7 @@ export function NoticeDetail() {
           </h1>
           <hr className="hair" style={{ marginBottom: 18 }} />
           <p style={{ margin: 0, fontSize: 15, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{n.body}</p>
+          <Attachments items={n.attachments} />
         </div>
       )}
     </div>

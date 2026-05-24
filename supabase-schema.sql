@@ -33,7 +33,8 @@ create table if not exists members (
 create table if not exists notices (
   id uuid primary key default gen_random_uuid(),
   category text default '안내', title text not null, body text,
-  pinned boolean default false, created_at date default now()
+  pinned boolean default false,
+  attachments jsonb default '[]', created_at date default now()
 );
 
 create table if not exists rules (
@@ -44,7 +45,8 @@ create table if not exists rules (
 create table if not exists minutes (
   id uuid primary key default gen_random_uuid(),
   round int, title text, date date, place text, quorum text,
-  agenda jsonb default '[]', decided text
+  agenda jsonb default '[]', decided text,
+  attachments jsonb default '[]'
 );
 
 create table if not exists documents (
@@ -61,6 +63,7 @@ create table if not exists events (
 create table if not exists suggestions (
   id uuid primary key default gen_random_uuid(),
   category text, body text not null, status text default '검토중',
+  attachments jsonb default '[]',
   created_at timestamptz default now()
 );
 
@@ -178,3 +181,74 @@ insert into events (title, date, phase, kind) values
 
 insert into suggestions (category, body, status, created_at) values
   ('절차','면접 일정을 더 일찍 공지해 주시면 후보들이 준비하기 좋겠습니다.','검토중','2026-04-18');
+
+-- =====================================================================
+--  [업데이트] 첨부 파일 / Storage 설정
+--  이미 위 스키마를 실행한 프로젝트는 아래 블록만 추가로 실행하면 됩니다.
+-- =====================================================================
+
+-- 1) 공지 / 회의록에 첨부(사진·파일·영상·유튜브) 컬럼 추가
+alter table notices add column if not exists attachments jsonb default '[]';
+alter table minutes add column if not exists attachments jsonb default '[]';
+
+-- 2) Storage 버킷 생성 (공개 읽기)
+insert into storage.buckets (id, name, public)
+values ('media', 'media', true)
+on conflict (id) do nothing;
+
+-- 3) Storage 접근 정책
+--    읽기: 누구나 / 업로드·수정·삭제: 관리자(admin)만
+drop policy if exists "media_read"   on storage.objects;
+drop policy if exists "media_write"  on storage.objects;
+drop policy if exists "media_update" on storage.objects;
+drop policy if exists "media_delete" on storage.objects;
+
+create policy "media_read" on storage.objects
+  for select using (bucket_id = 'media');
+
+create policy "media_write" on storage.objects
+  for insert with check (bucket_id = 'media' and is_admin());
+
+create policy "media_update" on storage.objects
+  for update using (bucket_id = 'media' and is_admin());
+
+create policy "media_delete" on storage.objects
+  for delete using (bucket_id = 'media' and is_admin());
+
+-- =====================================================================
+--  [업데이트 2] 로그인 사용자 작성 권한 + 개선의견 첨부
+--  이미 스키마를 실행한 프로젝트는 이 블록을 추가로 실행하세요.
+-- =====================================================================
+
+-- 개선의견 첨부 컬럼
+alter table suggestions add column if not exists attachments jsonb default '[]';
+
+-- 공지/회의록/자료실/개선의견: 로그인(authenticated) 사용자면 작성·수정·삭제 가능
+--  (위원/규칙/일정은 기존 admin 전용 정책 유지)
+do $$ declare t text;
+begin
+  foreach t in array array['notices','minutes','documents','suggestions']
+  loop
+    execute format('drop policy if exists "auth_write" on %I;', t);
+    execute format('create policy "auth_write" on %I for all to authenticated using (true) with check (true);', t);
+  end loop;
+end $$;
+
+-- Storage 업로드 권한: 관리자 전용 -> 로그인 사용자 누구나 (유튜브 링크는 업로드 불필요)
+drop policy if exists "media_write"  on storage.objects;
+drop policy if exists "media_update" on storage.objects;
+drop policy if exists "media_delete" on storage.objects;
+
+create policy "media_write" on storage.objects
+  for insert to authenticated with check (bucket_id = 'media');
+create policy "media_update" on storage.objects
+  for update to authenticated using (bucket_id = 'media');
+create policy "media_delete" on storage.objects
+  for delete to authenticated using (bucket_id = 'media');
+
+-- =====================================================================
+--  [업데이트 3] 개선의견 등록도 로그인 필요
+--  "누구나 등록" 정책을 제거합니다. (읽기는 누구나 그대로 유지)
+--  로그인 사용자의 등록·수정은 [업데이트 2]의 auth_write 정책이 처리합니다.
+-- =====================================================================
+drop policy if exists "insert_suggestion" on suggestions;

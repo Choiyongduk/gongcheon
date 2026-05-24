@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Symbol } from "../components/Logo";
+import { Symbol, FullLogo } from "../components/Logo";
 import { SectionHead, Card, Badge, fmtDate } from "../components/ui";
 import { useCollection } from "../lib/useData";
 import {
@@ -31,11 +31,9 @@ export default function Home() {
   return (
     <div style={{ position: "relative", zIndex: 1 }}>
       <div className="brandbar">
-        <div className="brand-mark"><Symbol size={24} color="#fffff3" /></div>
-        <div>
-          <div className="brand-name">자유와혁신</div>
-          <div className="brand-sub">공천관리위원회</div>
-        </div>
+        <FullLogo height={30} />
+        <div style={{ height: 22, width: 1, background: "var(--line)", margin: "0 2px" }} />
+        <div className="brand-sub" style={{ marginTop: 0, fontSize: 12 }}>공천관리위원회</div>
       </div>
 
       <div style={{ padding: "8px 18px 24px" }}>
@@ -43,7 +41,7 @@ export default function Home() {
         <Card className="lux fade" style={{ padding: "22px 20px 18px", border: "none" }}>
           <span className="goldline" />
           <div style={{ position: "absolute", right: -10, top: -2, opacity: 0.9 }}>
-            <Symbol size={132} color="rgba(255,255,255,0.10)" />
+            <Symbol size={150} white style={{ opacity: 0.12 }} />
           </div>
           <span className="badge outline-light">제9회 전국동시지방선거</span>
           <h1 className="display" style={{ margin: "13px 0 6px", fontSize: 25, lineHeight: 1.25 }}>

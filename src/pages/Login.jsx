@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { Card } from "../components/ui";
-import { Symbol } from "../components/Logo";
+import { FullLogo } from "../components/Logo";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -30,10 +30,8 @@ export default function Login() {
       <TopBar title={mode === "in" ? "로그인" : "회원가입"} />
       <div style={{ padding: 18 }}>
         <div className="center" style={{ margin: "18px 0 26px" }}>
-          <div style={{ width: 60, height: 60, borderRadius: 16, background: "var(--navy)", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow)" }}>
-            <Symbol size={38} color="#fffff3" />
-          </div>
-          <div className="display" style={{ fontSize: 17, color: "var(--navy)", marginTop: 12 }}>공천관리위원회</div>
+          <FullLogo height={46} style={{ margin: "0 auto" }} />
+          <div className="display" style={{ fontSize: 17, color: "var(--navy)", marginTop: 14 }}>공천관리위원회</div>
           <div className="muted" style={{ fontSize: 12.5, marginTop: 3 }}>위원·운영자 전용</div>
         </div>
 

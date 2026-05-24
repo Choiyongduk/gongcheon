@@ -3,18 +3,25 @@ import { useNavigate, useParams } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { Card, Badge, SectionHead, Loading, Empty, fmtDate } from "../components/ui";
 import { IcDoc, IcDown } from "../components/Icons";
+import { Attachments } from "../components/Media";
+import { WriteButton } from "../components/RecordEditor";
 import { useCollection } from "../lib/useData";
 
 export function Archive() {
   const nav = useNavigate();
   const [tab, setTab] = useState("minutes");
-  const { data: minutes, loading: lm } = useCollection("minutes");
-  const { data: docs, loading: ld } = useCollection("documents");
+  const { data: minutes, loading: lm, reload: rm } = useCollection("minutes");
+  const { data: docs, loading: ld, reload: rd } = useCollection("documents");
 
   return (
     <div className="page">
       <div style={{ padding: 18 }}>
-        <SectionHead kicker="Archive" title="회의 · 자료" />
+        <div className="row" style={{ alignItems: "flex-end", marginBottom: 16 }}>
+          <div className="grow"><SectionHead kicker="Archive" title="회의 · 자료" /></div>
+          {tab === "minutes"
+            ? <WriteButton table="minutes" label="회의록 작성" onSaved={rm} />
+            : <WriteButton table="documents" label="자료 추가" onSaved={rd} />}
+        </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           {[["minutes", "회의록"], ["docs", "자료실"]].map(([k, l]) => (
             <button
@@ -116,6 +123,7 @@ export function MinuteDetail() {
             </div>
             <div style={{ fontSize: 14.5, lineHeight: 1.75 }}>{m.decided}</div>
           </Card>
+          <Attachments items={m.attachments} />
         </div>
       )}
     </div>
