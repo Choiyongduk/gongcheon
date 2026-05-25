@@ -27,12 +27,13 @@ export function useCollection(table) {
   const [loading, setLoading] = useState(hasSupabase);
 
   async function load() {
+    const o = ORDER[table];
+    if (!o) { setData([]); setLoading(false); return; } // unknown/virtual table
     if (!hasSupabase) {
       setData(FALLBACK[table]);
       return;
     }
     setLoading(true);
-    const o = ORDER[table];
     const { data: rows, error } = await supabase
       .from(table)
       .select("*")

@@ -252,3 +252,66 @@ create policy "media_delete" on storage.objects
 --  로그인 사용자의 등록·수정은 [업데이트 2]의 auth_write 정책이 처리합니다.
 -- =====================================================================
 drop policy if exists "insert_suggestion" on suggestions;
+
+-- =====================================================================
+--  [업데이트 4] 가입승인 + 댓글 + 좋아요 + 승인자만 작성
+-- =====================================================================
+
+-- 승인 여부 헬퍼 (status=approved 또는 admin)
+create or replace function is_approved() returns boolean language sql stable as $$
+  select exists(select 1 from profiles where id = auth.uid() and (status = 'approved' or role = 'admin'));
+$$;
+
+-- 관리자: 모든 프로필 조회/수정 (가입승인 화면용)
+drop policy if exists "admin_read_profiles" on profiles;
+drop policy if exists "admin_update_profiles" on profiles;
+create policy "admin_read_profiles" on profiles for select using (is_admin());
+create policy "admin_update_profiles" on profiles for update using (is_admin()) with check (is_admin());
+
+-- 글쓰기: 승인된 사용자만 (기존 authenticated 정책 대체)
+do $$ declare t text;
+begin
+  foreach t in array array['notices','minutes','documents','suggestions'] loop
+    execute format('drop policy if exists "auth_write" on %I;', t);
+    execute format('create policy "auth_write" on %I for all to authenticated using (is_approved()) with check (is_approved());', t);
+  end loop;
+end $$;
+
+-- 댓글
+create table if not exists comments (
+  id uuid primary key default gen_random_uuid(),
+  target_table text not null,
+  target_id uuid not null,
+  user_id uuid references auth.users on delete cascade,
+  name text,
+  body text not null,
+  created_at timestamptz default now()
+);
+alter table comments enable row level security;
+drop policy if exists "comments_read" on comments;
+drop policy if exists "comments_insert" on comments;
+drop policy if exists "comments_delete" on comments;
+create policy "comments_read" on comments for select using (true);
+create policy "comments_insert" on comments for insert to authenticated with check (is_approved() and user_id = auth.uid());
+create policy "comments_delete" on comments for delete to authenticated using (user_id = auth.uid() or is_admin());
+
+-- 좋아요
+create table if not exists likes (
+  id uuid primary key default gen_random_uuid(),
+  target_table text not null,
+  target_id uuid not null,
+  user_id uuid references auth.users on delete cascade,
+  created_at timestamptz default now(),
+  unique (target_table, target_id, user_id)
+);
+alter table likes enable row level security;
+drop policy if exists "likes_read" on likes;
+drop policy if exists "likes_insert" on likes;
+drop policy if exists "likes_delete" on likes;
+create policy "likes_read" on likes for select using (true);
+create policy "likes_insert" on likes for insert to authenticated with check (is_approved() and user_id = auth.uid());
+create policy "likes_delete" on likes for delete to authenticated using (user_id = auth.uid());
+
+-- Storage 업로드도 승인자만
+drop policy if exists "media_write" on storage.objects;
+create policy "media_write" on storage.objects for insert to authenticated with check (bucket_id = 'media' and is_approved());

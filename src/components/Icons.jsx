@@ -28,3 +28,9 @@ export const IcEdit = (p) => (<S {...p}><path d="M4 20h4L19 9l-4-4L4 16v4Z" /><p
 export const IcLogout = (p) => (<S {...p}><path d="M14 4h5v16h-5" /><path d="M3 12h12m0 0-4-4m4 4-4 4" /></S>);
 export const IcLock = (p) => (<S {...p}><rect x="4.5" y="10" width="15" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></S>);
 export const IcVote = (p) => (<S {...p}><path d="M5 10 12 3l7 7" /><rect x="4" y="10" width="16" height="11" rx="2" /><path d="m9 15 2 2 4-4" /></S>);
+export const IcSend = (p) => (<S {...p}><path d="M4 12 20 4l-6 16-3-7-7-1Z" /></S>);
+export const IcHeart = ({ size = 22, fill = "none" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20s-7-4.5-9.2-8.6C1.1 8 2.6 5 5.6 5c1.9 0 3.2 1.1 4.4 2.6C11.2 6.1 12.5 5 14.4 5c3 0 4.5 3 2.8 6.4C19 15.5 12 20 12 20Z" />
+  </svg>
+);

@@ -4,6 +4,7 @@ import TopBar from "../components/TopBar";
 import { Card, Badge, SectionHead, Loading, Empty, fmtDate } from "../components/ui";
 import { IcDoc, IcDown } from "../components/Icons";
 import { Attachments } from "../components/Media";
+import Reactions from "../components/Reactions";
 import { WriteFab } from "../components/RecordEditor";
 import { useCollection } from "../lib/useData";
 
@@ -60,24 +61,27 @@ export function Archive() {
           ld ? <Loading /> : docs.length === 0 ? <Empty>자료가 없습니다.</Empty> : (
             <div className="stack" style={{ gap: 11 }}>
               {docs.map((d, i) => (
-                <Card key={d.id} className="card-pad row tap fade" style={{ animationDelay: `${i * 0.03}s` }}
-                  onClick={() => d.url && d.url !== "#" && window.open(d.url, "_blank")}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: 11, flexShrink: 0,
-                    background: d.filetype === "PDF" ? "var(--soft)" : "#eef1f7",
-                    color: d.filetype === "PDF" ? "var(--red)" : "var(--navy)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <IcDoc size={20} />
-                  </div>
-                  <div className="grow">
-                    <div style={{ fontSize: 14.5, fontWeight: 700 }}>{d.name}</div>
-                    <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                      {d.filetype} · {d.size} · {fmtDate(d.created_at)}
+                <div key={d.id}>
+                  <Card className="card-pad row tap fade" style={{ animationDelay: `${i * 0.03}s` }}
+                    onClick={() => d.url && d.url !== "#" && window.open(d.url, "_blank")}>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 11, flexShrink: 0,
+                      background: d.filetype === "PDF" ? "var(--soft)" : "#eef1f7",
+                      color: d.filetype === "PDF" ? "var(--red)" : "var(--navy)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <IcDoc size={20} />
                     </div>
-                  </div>
-                  <span style={{ color: "var(--red)", display: "inline-flex" }}><IcDown size={20} /></span>
-                </Card>
+                    <div className="grow">
+                      <div style={{ fontSize: 14.5, fontWeight: 700 }}>{d.name}</div>
+                      <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                        {d.filetype} · {d.size} · {fmtDate(d.created_at)}
+                      </div>
+                    </div>
+                    <span style={{ color: "var(--red)", display: "inline-flex" }}><IcDown size={20} /></span>
+                  </Card>
+                  <div style={{ padding: "0 14px" }}><Reactions table="documents" id={d.id} compact /></div>
+                </div>
               ))}
             </div>
           )
@@ -120,6 +124,7 @@ export function MinuteDetail() {
             <div style={{ fontSize: 14.5, lineHeight: 1.75 }}>{m.decided}</div>
           </Card>
           <Attachments items={m.attachments} />
+          <Reactions table="minutes" id={m.id} />
         </div>
       )}
     </div>

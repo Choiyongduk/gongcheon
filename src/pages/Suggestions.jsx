@@ -3,6 +3,7 @@ import TopBar from "../components/TopBar";
 import { Card, Badge, Loading, fmtDate } from "../components/ui";
 import { IcCheck } from "../components/Icons";
 import { Attachments, Uploader } from "../components/Media";
+import Reactions from "../components/Reactions";
 import { useCollection } from "../lib/useData";
 import { supabase, hasSupabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
@@ -89,6 +90,7 @@ export default function Suggestions() {
                 </div>
                 <div style={{ fontSize: 14, lineHeight: 1.6 }}>{s.body}</div>
                 <Attachments items={s.attachments} />
+                {String(s.id).startsWith("loc") ? null : <Reactions table="suggestions" id={s.id} compact />}
               </Card>
             ))}
           </div>

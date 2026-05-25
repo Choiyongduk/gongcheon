@@ -22,7 +22,7 @@ export default function Login() {
     setBusy(false);
     if (error) return setMsg(error.message);
     if (mode === "up") return setMsg("가입 완료. 운영자 승인 후 관리 기능을 사용할 수 있습니다.");
-    nav("/committee");
+    nav("/");
   };
 
   return (
@@ -58,7 +58,10 @@ export default function Login() {
             {mode === "in" ? "회원가입" : "로그인으로"}
           </button>
         </Card>
-        <p className="muted center" style={{ fontSize: 11, marginTop: 16, lineHeight: 1.7 }}>
+        <button className="btn btn-ghost" style={{ marginTop: 14, background: "transparent", boxShadow: "none", color: "var(--muted)", fontWeight: 700 }} onClick={() => nav("/")}>
+          로그인 없이 둘러보기
+        </button>
+        <p className="muted center" style={{ fontSize: 11, marginTop: 10, lineHeight: 1.7 }}>
           비밀번호는 본인이 직접 입력합니다. 가입 후 운영자가 권한을 부여합니다.
         </p>
       </div>

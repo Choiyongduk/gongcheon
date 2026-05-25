@@ -7,6 +7,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useCollection } from "../../lib/useData";
 import { supabase, hasSupabase } from "../../lib/supabase";
 import { SCHEMA, TABS, RecordEditor } from "../../components/RecordEditor";
+import Approvals from "./Approvals";
+
+const ALL_TABS = [...TABS, "approvals"];
+const TAB_LABEL = { approvals: "가입승인" };
 
 export default function Admin() {
   const { isAdmin, ready } = useAuth();
@@ -18,7 +22,8 @@ export default function Admin() {
   if (!hasSupabase) return <Navigate to="/" replace />;
   if (!isAdmin) return <Navigate to="/login" replace />;
 
-  const sc = SCHEMA[tab];
+  const isApprovals = tab === "approvals";
+  const sc = isApprovals ? null : SCHEMA[tab];
   const del = async (id) => {
     if (!window.confirm("삭제하시겠습니까?")) return;
     await supabase.from(tab).delete().eq("id", id);
@@ -28,19 +33,19 @@ export default function Admin() {
   return (
     <div className="page">
       <TopBar title="관리자" right={
-        <button className="iconbtn" onClick={() => setEditing({})} aria-label="추가"><IcPlus size={24} /></button>
+        isApprovals ? null : <button className="iconbtn" onClick={() => setEditing({})} aria-label="추가"><IcPlus size={24} /></button>
       } />
       <div style={{ display: "flex", gap: 7, overflowX: "auto", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
-        {TABS.map((t) => (
+        {ALL_TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)}
             style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 800, background: tab === t ? "var(--navy)" : "#fff", color: tab === t ? "#fff" : "var(--muted)", boxShadow: tab === t ? "none" : "inset 0 0 0 1px var(--line)" }}>
-            {SCHEMA[t].label}
+            {TAB_LABEL[t] || SCHEMA[t].label}
           </button>
         ))}
       </div>
 
       <div style={{ padding: 16 }}>
-        {loading ? <Loading /> : (
+        {isApprovals ? <Approvals /> : loading ? <Loading /> : (
           <div className="stack" style={{ gap: 10 }}>
             {data.map((r) => (
               <Card key={r.id} className="card-pad row">

@@ -4,6 +4,7 @@ import TopBar from "../components/TopBar";
 import { Card, Badge, SectionHead, Empty, Loading, fmtDate } from "../components/ui";
 import { IcPin } from "../components/Icons";
 import { Attachments } from "../components/Media";
+import Reactions from "../components/Reactions";
 import { WriteFab } from "../components/RecordEditor";
 import { useCollection } from "../lib/useData";
 
@@ -61,6 +62,7 @@ export function NoticeDetail() {
           <hr className="hair" style={{ marginBottom: 18 }} />
           <p style={{ margin: 0, fontSize: 15, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{n.body}</p>
           <Attachments items={n.attachments} />
+          <Reactions table="notices" id={n.id} />
         </div>
       )}
     </div>

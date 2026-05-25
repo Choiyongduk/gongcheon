@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Symbol, FullLogo } from "../components/Logo";
 import { SectionHead, Card, Badge, fmtDate } from "../components/ui";
 import { useCollection } from "../lib/useData";
+import InstallButton from "../components/InstallButton";
+import { fetchFeed, getLastSeen, countUnseen } from "../lib/notify";
 import {
   IcMembers, IcBell, IcScale, IcArchive, IcCalendar, IcDoc, IcBulb, IcVote,
 } from "../components/Icons";
@@ -21,6 +23,11 @@ export default function Home() {
   const nav = useNavigate();
   const { data: notices } = useCollection("notices");
   const { data: events } = useCollection("events");
+  const [unseen, setUnseen] = useState(0);
+
+  useEffect(() => {
+    fetchFeed().then((feed) => setUnseen(countUnseen(feed, getLastSeen())));
+  }, []);
 
   const top = notices[0];
   const next =
@@ -34,6 +41,14 @@ export default function Home() {
         <FullLogo height={30} />
         <div style={{ height: 22, width: 1, background: "var(--line)", margin: "0 2px" }} />
         <div className="brand-sub" style={{ marginTop: 0, fontSize: 12 }}>공천관리위원회</div>
+        <button className="iconbtn" style={{ marginLeft: "auto", position: "relative" }} onClick={() => nav("/notifications")} aria-label="알림">
+          <IcBell size={22} />
+          {unseen > 0 && (
+            <span style={{ position: "absolute", top: 6, right: 7, minWidth: 16, height: 16, padding: "0 4px", borderRadius: 9, background: "var(--red)", color: "#fff", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {unseen > 99 ? "99+" : unseen}
+            </span>
+          )}
+        </button>
       </div>
 
       <div style={{ padding: "8px 18px 24px" }}>
@@ -105,6 +120,8 @@ export default function Home() {
             </Card>
           </div>
         </div>
+
+        <div style={{ marginTop: 24 }}><InstallButton /></div>
 
         <hr className="hair" style={{ margin: "26px 0 14px" }} />
         <p className="center muted" style={{ fontSize: 11, lineHeight: 1.7 }}>

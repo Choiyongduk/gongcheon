@@ -32,13 +32,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   const isAdmin = profile?.role === "admin";
+  const isApproved = isAdmin || profile?.status === "approved";
+  const displayName = profile?.name || user?.user_metadata?.name || (user?.email ? user.email.split("@")[0] : "");
 
   const value = {
     user,
     profile,
     ready,
     isAdmin,
+    isApproved,
+    displayName,
     hasSupabase,
+    reloadProfile: () => loadProfile(user),
     signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signUp: (email, password, name) =>
       supabase.auth.signUp({ email, password, options: { data: { name } } }),
