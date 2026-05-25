@@ -199,3 +199,33 @@ export function WriteButton({ table, label = "작성", onSaved }) {
     </>
   );
 }
+
+/* 오른쪽 아래 떠있는 + 버튼 (로그인 사용자에게만). 하단 탭 위에 위치 */
+export function WriteFab({ table, onSaved, label = "작성" }) {
+  const { user, hasSupabase } = useAuth();
+  const [open, setOpen] = useState(false);
+  if (!hasSupabase || !user) return null;
+  return (
+    <>
+      <div style={{ position: "fixed", left: 0, right: 0, maxWidth: 440, margin: "0 auto", bottom: "calc(80px + env(safe-area-inset-bottom))", pointerEvents: "none", zIndex: 25 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 18px" }}>
+          <button
+            onClick={() => setOpen(true)}
+            aria-label={label}
+            style={{ pointerEvents: "auto", width: 54, height: 54, borderRadius: "50%", border: "none", cursor: "pointer", background: "var(--red)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(165,0,52,0.4)" }}
+          >
+            <IcPlus size={26} />
+          </button>
+        </div>
+      </div>
+      {open && (
+        <RecordEditor
+          table={table}
+          row={{}}
+          onClose={() => setOpen(false)}
+          onSaved={() => { setOpen(false); onSaved && onSaved(); }}
+        />
+      )}
+    </>
+  );
+}

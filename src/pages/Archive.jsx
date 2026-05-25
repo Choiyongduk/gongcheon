@@ -4,7 +4,7 @@ import TopBar from "../components/TopBar";
 import { Card, Badge, SectionHead, Loading, Empty, fmtDate } from "../components/ui";
 import { IcDoc, IcDown } from "../components/Icons";
 import { Attachments } from "../components/Media";
-import { WriteButton } from "../components/RecordEditor";
+import { WriteFab } from "../components/RecordEditor";
 import { useCollection } from "../lib/useData";
 
 export function Archive() {
@@ -15,11 +15,8 @@ export function Archive() {
 
   return (
     <div className="page">
-      <TopBar title="회의 · 자료" right={
-        tab === "minutes"
-          ? <WriteButton table="minutes" label="작성" onSaved={rm} />
-          : <WriteButton table="documents" label="추가" onSaved={rd} />
-      } />
+      <TopBar title="회의 · 자료" />
+      <WriteFab table={tab === "minutes" ? "minutes" : "documents"} onSaved={tab === "minutes" ? rm : rd} />
       <div style={{ padding: 18 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           {[["minutes", "회의록"], ["docs", "자료실"]].map(([k, l]) => (
