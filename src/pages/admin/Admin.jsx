@@ -35,13 +35,16 @@ export default function Admin() {
       <TopBar title="관리자" right={
         isApprovals ? null : <button className="iconbtn" onClick={() => setEditing({})} aria-label="추가"><IcPlus size={24} /></button>
       } />
-      <div style={{ display: "flex", gap: 7, overflowX: "auto", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
-        {ALL_TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 800, background: tab === t ? "var(--navy)" : "#fff", color: tab === t ? "#fff" : "var(--muted)", boxShadow: tab === t ? "none" : "inset 0 0 0 1px var(--line)" }}>
-            {TAB_LABEL[t] || SCHEMA[t].label}
-          </button>
-        ))}
+      <div style={{ position: "relative", borderBottom: "1px solid var(--line)" }}>
+        <div className="tabscroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "12px 14px", scrollbarWidth: "thin" }}>
+          {ALL_TABS.map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 800, background: tab === t ? "var(--navy)" : "#fff", color: tab === t ? "#fff" : "var(--muted)", boxShadow: tab === t ? "none" : "inset 0 0 0 1px var(--line)" }}>
+              {TAB_LABEL[t] || SCHEMA[t].label}
+            </button>
+          ))}
+        </div>
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 36, pointerEvents: "none", background: "linear-gradient(90deg, rgba(251,250,242,0), var(--paper))" }} />
       </div>
 
       <div style={{ padding: 16 }}>
